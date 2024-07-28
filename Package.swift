@@ -21,6 +21,7 @@ let package = Package(
         .package(url: "https://github.com/ddddxxx/Regex", from: "1.0.1"),
         .package(url: "https://github.com/Mx-Iris/SwiftCF", .branchItem("master")),
         .package(name: "Gzip", url: "https://github.com/1024jp/GzipSwift", from: "5.0.0"),
+        .package(url: "https://github.com/drmohundro/SWXMLHash", .upToNextMajor(from: "7.0.0")),
     ],
     targets: [
         .target(
@@ -28,7 +29,11 @@ let package = Package(
             dependencies: ["Regex", "SwiftCF"]),
         .target(
             name: "LyricsService",
-            dependencies: ["LyricsCore", "CXShim", "CXExtensions", "Regex", "Gzip"]),
+            dependencies: [
+                "LyricsCore", "CXShim", "CXExtensions", "Regex", "Gzip",
+                .product(name: "SWXMLHash", package: "SWXMLHash")
+            ]
+        ),
         .testTarget(
             name: "LyricsKitTests",
             dependencies: ["LyricsCore", "LyricsService"]),

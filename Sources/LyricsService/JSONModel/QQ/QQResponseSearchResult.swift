@@ -9,125 +9,83 @@
 
 import Foundation
 
+public protocol QQMusicSongSearchResult {
+    var id: String { get }
+    var mid: String { get }
+    var name: String { get }
+    var singers: [String] { get }
+}
+
 struct QQResponseSearchResult: Decodable {
     let data: Data
     let code: Int
-    
-    /*
-    let message: String
-    let notice: String
-    let subcode: Int
-    let time: Int // time stamp
-    let tips: String
-     */
-    
+
     struct Data: Decodable {
         let song: Song
-        
-        /*
-        let keyword: String
-         ...
-         */
-        
+
         struct Song: Decodable {
             let list: [Item]
             enum CodingKeys: String, CodingKey {
                 case list = "itemlist"
             }
-            /*
-            let curnum: Int
-            let curpage: Int
-            let totalnum: Int
-             */
-            
-            struct Item: Decodable {
-                let songmid: String
-                let songname: String
+
+            struct Item: Decodable, QQMusicSongSearchResult {
+                var singers: [String] { [singer] }
+                let mid: String
+                let name: String
                 let singer: String
                 let id: String
-                /*
-                let albumname: String
-                let interval: Int
-                 */
-                enum CodingKeys: String, CodingKey {
-                    case songmid = "mid"
-                    case songname = "name"
-                    case singer
-                    case id
-                }
-                /*
-                let albummid: String
-                let albumname_hilight: String
-                let alertid: Int
-                let belongCD: Int
-                let cdIdx: Int
-                let chinesesinger: Int
-                let docid: String
-                let format: String
-                let isonly: Int
-                let lyric: String
-                let lyric_hilight: String
-                let media_mid: String
-                let msgid: Int
-                let newStatus: Int
-                let nt: Int
-                let pay: Pay
-                let preview: Preview
-                let pubtime: Int
-                let pure: Int
-                let size128: Int
-                let size320: Int
-                let sizeape: Int
-                let sizeflac: Int
-                let sizeogg: Int
-                let songid: Int
-                let songname_hilight: String
-                let songurl: URL?
-                let strMediaMid: String
-                let stream: Int
-                let `switch`: Int
-                let t: Int
-                let tag: Int
-                let type: Int
-                let ver: Int
-                let vid: String
-                 */
-                
-                // let grp: [Any]
-                /*
-                struct Pay: Decodable {
-                    let payalbum: Int
-                    let payalbumprice: Int
-                    let paydownload: Int
-                    let payinfo: Int
-                    let payplay: Int
-                    let paytrackmouth: Int
-                    let paytrackprice: Int
-                }
-                
-                struct Preview: Decodable {
-                    let trybegin: Int
-                    let tryend: Int
-                    let trysize: Int
-                }
-                
-                struct Singer: Decodable {
-                    let name: String
-                    
-                    
-                    let id: Int
-                    let mid: String
-                    let name_hilight: String
-                }
-                */
             }
         }
     }
 }
 
 extension QQResponseSearchResult {
-    
     var songs: [Data.Song.Item] {
         return data.song.list
+    }
+}
+
+struct QQResponseSearchResult2: Decodable {
+    struct Request: Decodable {
+        struct Data: Decodable {
+            struct Body: Decodable {
+                struct Song: Decodable {
+                    struct Item: Decodable, QQMusicSongSearchResult {
+                        struct Singer: Decodable {
+                            let name: String
+                        }
+
+                        let mid: String
+                        let name: String
+                        let _id: Int
+                        let singer: [Singer]
+                        var singers: [String] { singer.map(\.name) }
+                        var id: String { .init(_id) }
+                        enum CodingKeys: String, CodingKey {
+                            case mid
+                            case name
+                            case _id = "id"
+                            case singer
+                        }
+                    }
+
+                    let list: [Item]
+                }
+
+                let song: Song
+            }
+
+            let body: Body
+        }
+
+        let data: Data
+        let code: Int
+    }
+
+    let request: Request
+
+    enum CodingKeys: String, CodingKey {
+        case request = "req_1"
     }
 }

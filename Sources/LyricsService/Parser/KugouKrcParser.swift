@@ -88,7 +88,7 @@ extension Lyrics {
             idTags[.init(key)] = value
         }
         
-        let lines: [LyricsLine] = krcLineRegex.matches(in: content).map { match in
+        let lines: [LyricsLine] = qrcLineRegex.matches(in: content).map { match in
             let timeTagStr = match[1]!.content
             let timeTag = TimeInterval(timeTagStr)! / 1000
             

@@ -24,6 +24,8 @@ let id3TagRegex = Regex(#"^(?!\[[+-]?\d+:\d+(?:\.\d+)?\])\[(.+?):(.+)\]$"#, opti
 
 let krcLineRegex = Regex(#"^\[(\d+),(\d+)\](.*)"#, options: .anchorsMatchLines)
 
+let qrcLineRegex = Regex(#"^\[(\d+),(\d+)\](.*)"#, options: [.anchorsMatchLines])
+
 let netEaseInlineTagRegex = Regex(#"\(0,(\d+)\)([^(]+)(\(0,1\) )?"#)
 
 let kugouInlineTagRegex = Regex(#"<(\d+),(\d+),0>([^<]*)"#)
