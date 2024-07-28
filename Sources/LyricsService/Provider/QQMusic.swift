@@ -11,7 +11,7 @@ import Foundation
 import LyricsCore
 import CXShim
 import CXExtensions
-import SWXMLHash
+//import SWXMLHash
 
 #if canImport(FoundationNetworking)
 import FoundationNetworking
