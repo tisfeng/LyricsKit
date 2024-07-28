@@ -17,7 +17,8 @@ import FoundationNetworking
 #endif
 
 private let qqSearchBaseURLString = "https://c.y.qq.com/splcloud/fcgi-bin/smartbox_new.fcg"
-private let qqLyricsBaseURLString = "https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg"
+//private let qqLyricsBaseURLString = "https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg"
+private let qqLyricsBaseURLString = "https://c.y.qq.com/qqmusic/fcgi-bin/lyric_download.fcg"
 
 extension LyricsProviders {
     public final class QQMusic {
@@ -48,6 +49,59 @@ extension LyricsProviders.QQMusic: _LyricsProvider {
     }
     
     public func lyricsFetchPublisher(token: LyricsToken) -> AnyPublisher<Lyrics, Never> {
+        let token = token.value
+        let parameter: [String: Any] = [
+            "musicid": token.id,
+            "version": 15,
+            "miniversion": 82,
+            "lrctype": 4,
+        ]
+        let url = URL(string: qqLyricsBaseURLString + "?" + parameter.stringFromHttpParameters)!
+        var req = URLRequest(url: url)
+        req.setValue("y.qq.com/portal/player.html", forHTTPHeaderField: "Referer")
+        return sharedURLSession.cx.dataTaskPublisher(for: req)
+            .compactMap { response -> Lyrics? in
+                guard var dataString = String(data: response.data, encoding: .utf8) else {
+                    return nil
+                }
+                dataString = dataString.replacingOccurrences(of: "<!--", with: "")
+                dataString = dataString.replacingOccurrences(of: "-->", with: "")
+                guard let xmlDocument = try? XMLUtils.create(content: dataString),
+                      let encryptedString = try? xmlDocument.nodes(forXPath: "//content").first?.stringValue,
+                      let decryptedString = decryptQQMusicQrc(encryptedString),
+                let lrc = Lyrics(qqmusicQrcContent: decryptedString) else {
+                    return nil
+                }
+                
+//                guard let model = try? JSONDecoder().decode(QQResponseSingleLyrics.self, from: data),
+//                    let lrcContent = model.lyricString,
+//                    let lrc = Lyrics(lrcContent) else {
+//                        return nil
+//                }
+//                if let transLrcContent = model.transString,
+//                    let transLrc = Lyrics(transLrcContent) {
+//                    lrc.merge(translation: transLrc)
+//                }
+                
+                lrc.idTags[.title] = token.songname
+                lrc.idTags[.artist] = token.singer
+//                lrc.idTags[.album] = token.albumname
+                
+//                lrc.length = Double(token.interval)
+                lrc.metadata.serviceToken = "\(token.songmid)"
+                if let id = Int(token.songmid) {
+                    lrc.metadata.artworkURL = URL(string: "http://imgcache.qq.com/music/photo/album/\(id % 100)/\(id).jpg")
+                }
+                
+                // remove their kana tag. we don't need it.
+//                lrc.idTags.removeValue(forKey: .qqMusicKana)
+                
+                return lrc
+            }.ignoreError()
+            .eraseToAnyPublisher()
+    }
+    
+    public func _lyricsFetchPublisher(token: LyricsToken) -> AnyPublisher<Lyrics, Never> {
         let token = token.value
         let parameter: [String: Any] = [
             "songmid": token.songmid,

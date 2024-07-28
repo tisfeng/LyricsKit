@@ -44,6 +44,7 @@ struct QQResponseSearchResult: Decodable {
                 let songmid: String
                 let songname: String
                 let singer: String
+                let id: String
                 /*
                 let albumname: String
                 let interval: Int
@@ -52,6 +53,7 @@ struct QQResponseSearchResult: Decodable {
                     case songmid = "mid"
                     case songname = "name"
                     case singer
+                    case id
                 }
                 /*
                 let albummid: String

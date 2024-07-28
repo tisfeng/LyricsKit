@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "LyricsKit",
     platforms: [
-        .macOS(.v10_10),
+        .macOS(.v10_15),
         .iOS(.minimalToolChainSupported),
         .tvOS(.v9),
         .watchOS(.v2),
