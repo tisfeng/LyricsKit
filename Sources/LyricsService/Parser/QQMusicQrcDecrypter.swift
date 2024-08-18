@@ -34,6 +34,7 @@ class QrcDecoder {
 
     enum DecodeError: Error {
         case convertStringError
+        case dataEmpty
     }
     
     static func decode(_ hex: String) throws -> String {
@@ -44,8 +45,13 @@ class QrcDecoder {
         try des(&data, KEY2, dataLen)
         try ddes(&data, KEY3, dataLen)
         var byteData = Data(data)
+        
+        guard !byteData.isEmpty else {
+            throw DecodeError.dataEmpty
+        }
+        
         byteData.removeFirst(2)
-
+        
         let decompressedData = try (byteData as NSData).decompressed(using: .zlib)
         guard let result = String(data: decompressedData as Data, encoding: .utf8)
         else {
