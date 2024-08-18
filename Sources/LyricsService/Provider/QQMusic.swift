@@ -125,6 +125,13 @@ extension LyricsProviders.QQMusic: _LyricsProvider {
                     lrc.metadata.artworkURL = URL(string: "http://imgcache.qq.com/music/photo/album/\(id % 100)/\(id).jpg")
                 }
 
+                if let transEncryptedString = try? xmlDocument.nodes(forXPath: "//contentts").first?.stringValue,
+                   let transDecryptedString = decryptQQMusicQrc(transEncryptedString),
+                   let transLrc = Lyrics(transDecryptedString)
+                {
+                    lrc.merge(translation: transLrc)
+                }
+                
                 // remove their kana tag. we don't need it.
 //                lrc.idTags.removeValue(forKey: .qqMusicKana)
 

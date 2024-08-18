@@ -1033,7 +1033,12 @@ enum XMLUtils {
 }
 
 func decryptQQMusicQrc(_ data: String) -> String? {
-    try? QrcDecoder.decode(data)
+    do {
+        return try QrcDecoder.decode(data)
+    } catch {
+        print(error)
+        return nil
+    }
 }
 
 extension Array {

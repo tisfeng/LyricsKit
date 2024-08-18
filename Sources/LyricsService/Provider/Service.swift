@@ -31,7 +31,7 @@ extension LyricsProviders.Service {
         #if canImport(Darwin)
         case .syair:    return LyricsProviders.Syair()
         #endif
-        default:        return LyricsProviders.Unsupported()
+//        default:        return LyricsProviders.Unsupported()
         }
     }
 }
