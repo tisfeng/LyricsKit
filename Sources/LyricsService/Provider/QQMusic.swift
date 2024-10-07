@@ -45,8 +45,8 @@ extension LyricsProviders.QQMusic: _LyricsProvider {
             .flatMap(Publishers.Sequence.init)
             .map { $0 as LyricsToken }
             .eraseToAnyPublisher()
-            .merge(with: lyricsSearchPublisher2(request: request))
-            .eraseToAnyPublisher()
+//            .merge(with: lyricsSearchPublisher2(request: request))
+//            .eraseToAnyPublisher()
     }
 
     public func lyricsSearchPublisher2(request: LyricsSearchRequest) -> AnyPublisher<LyricsToken, Never> {
