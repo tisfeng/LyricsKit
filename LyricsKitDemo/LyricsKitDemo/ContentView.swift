@@ -58,13 +58,17 @@ struct ContentView: View {
                 .frame(minWidth: 400, maxWidth: .infinity)
 
                 ScrollView {
-                    if let lyrics = selectedLyrics {
-                        Text(lyrics.description)
-                            .padding()
-                    } else {
-                        Text("请选择歌曲")
-                            .foregroundColor(.secondary)
-                            .padding()
+                    VStack(alignment: .leading) {
+                        if let lyrics = selectedLyrics {
+                            Text(lyrics.description)
+                                .textSelection(.enabled)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding()
+                        } else {
+                            Text("请选择歌曲查看歌词")
+                                .foregroundColor(.secondary)
+                                .padding()
+                        }
                     }
                 }
                 .frame(minWidth: 300, maxWidth: .infinity)
@@ -106,9 +110,9 @@ struct ContentView: View {
                     searchResults.append(lyrics)
                 }
             )
+            .cancel(after: 10, scheduler: DispatchQueue.main)
     }
 }
-
 
 private class SearchCanceller {
     var cancellable: Cancellable?
