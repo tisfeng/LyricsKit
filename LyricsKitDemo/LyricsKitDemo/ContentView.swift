@@ -47,8 +47,8 @@ struct ContentView: View {
                                 Text(lyrics.metadata.service?.rawValue ?? "Unknown source")
                             }
                         }
+                        .tableStyle(.inset)
                     }
-
                     Spacer()
                 }
                 .frame(minWidth: 400, maxWidth: .infinity)
@@ -69,6 +69,7 @@ struct ContentView: View {
                 }
                 .frame(minWidth: 300, maxWidth: .infinity)
             }
+            .padding()
 
             if let error = error {
                 Text("Search failed: \(error.localizedDescription)")
