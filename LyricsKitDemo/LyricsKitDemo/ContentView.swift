@@ -9,10 +9,6 @@ import Combine
 import LyricsService
 import SwiftUI
 
-class LyricsWrapper: ObservableObject {
-    @Published var lyrics: Lyrics?
-}
-
 struct ContentView: View {
     @State private var searchText = "一生不变 李克勤"
     @State private var searchResults: [Lyrics] = []
@@ -25,7 +21,7 @@ struct ContentView: View {
 
     var body: some View {
         VStack {
-            TextField("搜索...", text: $searchText)
+            TextField("Search...", text: $searchText)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()
                 .onSubmit {
@@ -38,17 +34,17 @@ struct ContentView: View {
                         ProgressView()
                     } else {
                         Table(searchResults, selection: $selectedLyrics) {
-                            TableColumn("歌曲") { lyrics in
-                                Text(lyrics.idTags[.title] ?? "未知歌曲")
+                            TableColumn("Song") { lyrics in
+                                Text(lyrics.idTags[.title] ?? "Unknown song")
                             }
-                            TableColumn("歌手") { lyrics in
-                                Text(lyrics.idTags[.artist] ?? "未知歌手")
+                            TableColumn("Artist") { lyrics in
+                                Text(lyrics.idTags[.artist] ?? "Unknown artist")
                             }
-                            TableColumn("专辑") { lyrics in
-                                Text(lyrics.idTags[.album] ?? "未知专辑")
+                            TableColumn("Album") { lyrics in
+                                Text(lyrics.idTags[.album] ?? "Unknown album")
                             }
-                            TableColumn("来源") { lyrics in
-                                Text(lyrics.metadata.service?.rawValue ?? "未知来源")
+                            TableColumn("Source") { lyrics in
+                                Text(lyrics.metadata.service?.rawValue ?? "Unknown source")
                             }
                         }
                     }
@@ -65,7 +61,7 @@ struct ContentView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding()
                         } else {
-                            Text("请选择歌曲查看歌词")
+                            Text("Select a song to view the lyrics")
                                 .foregroundColor(.secondary)
                                 .padding()
                         }
@@ -75,7 +71,7 @@ struct ContentView: View {
             }
 
             if let error = error {
-                Text("搜索失败: \(error.localizedDescription)")
+                Text("Search failed: \(error.localizedDescription)")
                     .foregroundColor(.red)
                     .padding()
             }
