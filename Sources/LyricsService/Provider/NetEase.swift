@@ -34,9 +34,7 @@ extension LyricsProviders.NetEase: _LyricsProvider {
 
     public static let service: LyricsProviders.Service? = .netease
 
-    public func lyricsSearchPublisher(request: LyricsSearchRequest) -> AnyPublisher<
-        LyricsToken, Never
-    > {
+    public func lyricsSearchPublisher(request: LyricsSearchRequest) -> AnyPublisher<LyricsToken, Never> {
         let parameter: [String: Any] = [
             "s": request.searchTerm.description,
             "offset": 0,
@@ -47,6 +45,9 @@ extension LyricsProviders.NetEase: _LyricsProvider {
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
         req.setValue("http://music.163.com/", forHTTPHeaderField: "Referer")
+        req.setValue(
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Safari/605.1.15",
+            forHTTPHeaderField: "User-Agent")
 
         return sharedURLSession.cx.dataTaskPublisher(for: req)
             .map { data, response -> String? in
