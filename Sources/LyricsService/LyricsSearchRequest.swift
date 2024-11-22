@@ -39,4 +39,13 @@ extension LyricsSearchRequest.SearchTerm: CustomStringConvertible {
             return title + " " + artist
         }
     }
+    
+    public var titleOnly: String {
+        switch self {
+        case .keyword(let string):
+            return string
+        case .info(let title, let artist):
+            return title
+        }
+    }
 }
