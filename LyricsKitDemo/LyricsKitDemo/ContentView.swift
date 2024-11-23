@@ -44,9 +44,7 @@ struct ContentView: View {
                                 Text(lyrics.idTags[.album] ?? "Unknown")
                             }
                             TableColumn("Duration") { lyrics in
-                                if let lengthStr = lyrics.idTags[.length],
-                                    let length = Double(lengthStr)
-                                {
+                                if let length = lyrics.length {
                                     Text(String(format: "%.1f", length))
                                 } else {
                                     Text("Unknown")
