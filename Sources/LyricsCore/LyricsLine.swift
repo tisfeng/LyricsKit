@@ -14,7 +14,8 @@ public struct LyricsLine {
     public var content: String
     public var position: TimeInterval
     public var attachments: Attachments
-    
+    public var enabled: Bool = true
+
     public weak var lyrics: Lyrics?
     internal var _index: Int?
     
@@ -59,12 +60,14 @@ extension LyricsLine {
 extension LyricsLine: Equatable, Hashable {
     
     public static func ==(lhs: LyricsLine, rhs: LyricsLine) -> Bool {
-        return lhs.position == rhs.position &&
-            lhs.content == rhs.content &&
-            lhs.attachments == rhs.attachments
+        return lhs.enabled == rhs.enabled &&
+        lhs.position == rhs.position &&
+        lhs.content == rhs.content &&
+        lhs.attachments == rhs.attachments
     }
     
     public func hash(into hasher: inout Hasher) {
+        hasher.combine(enabled)
         hasher.combine(position)
         hasher.combine(content)
     }

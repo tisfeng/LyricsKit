@@ -16,10 +16,7 @@ struct ContentView: View {
     @State private var error: Error?
     @State private var selectedLyricsID: String?
 
-    private var provider: LyricsProviders.Group = .init(service: [
-        .qq,
-        .netease, .kugou,
-    ])
+    private var provider: LyricsProviders.Group = .init(service: [ .qq, .netease, .kugou ])
     private var searchCanceller = SearchCanceller()
 
     var body: some View {
