@@ -48,11 +48,26 @@ struct ContentView: View {
                             }
                             TableColumn("Duration") { lyrics in
                                 if let lengthStr = lyrics.idTags[.length],
-                                   let length = Double(lengthStr)
+                                    let length = Double(lengthStr)
                                 {
                                     Text(String(format: "%.1f", length))
                                 } else {
                                     Text("Unknown")
+                                }
+                            }
+                            TableColumn("Cover") { lyrics in
+                                if let coverURL = lyrics.metadata.artworkURL {
+                                    AsyncImage(url: coverURL) { image in
+                                        image
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(width: 40, height: 40)
+                                    } placeholder: {
+                                        ProgressView()
+                                    }
+                                } else {
+                                    Image(systemName: "music.note")
+                                        .frame(width: 40, height: 40)
                                 }
                             }
                             TableColumn("Source") { lyrics in
