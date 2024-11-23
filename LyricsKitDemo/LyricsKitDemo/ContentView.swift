@@ -16,7 +16,10 @@ struct ContentView: View {
     @State private var error: Error?
     @State private var selectedLyrics: String?
 
-    private var provider: LyricsProviders.Group = .init(service: [.qq, .netease, .kugou])
+    private var provider: LyricsProviders.Group = .init(service: [
+        .qq,
+        .netease, .kugou,
+    ])
     private var searchCanceller = SearchCanceller()
 
     var body: some View {
@@ -35,16 +38,25 @@ struct ContentView: View {
                     } else {
                         Table(searchResults, selection: $selectedLyrics) {
                             TableColumn("Song") { lyrics in
-                                Text(lyrics.idTags[.title] ?? "Unknown song")
+                                Text(lyrics.idTags[.title] ?? "Unknown")
                             }
                             TableColumn("Artist") { lyrics in
-                                Text(lyrics.idTags[.artist] ?? "Unknown artist")
+                                Text(lyrics.idTags[.artist] ?? "Unknown")
                             }
                             TableColumn("Album") { lyrics in
-                                Text(lyrics.idTags[.album] ?? "Unknown album")
+                                Text(lyrics.idTags[.album] ?? "Unknown")
+                            }
+                            TableColumn("Duration") { lyrics in
+                                if let lengthStr = lyrics.idTags[.length],
+                                   let length = Double(lengthStr)
+                                {
+                                    Text(String(format: "%.1f", length))
+                                } else {
+                                    Text("Unknown")
+                                }
                             }
                             TableColumn("Source") { lyrics in
-                                Text(lyrics.metadata.service?.rawValue ?? "Unknown source")
+                                Text(lyrics.metadata.service?.rawValue ?? "Unknown")
                             }
                         }
                         .tableStyle(.inset)
