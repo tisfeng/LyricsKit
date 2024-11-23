@@ -14,7 +14,7 @@ struct ContentView: View {
     @State private var searchResults: [Lyrics] = []
     @State private var isLoading = false
     @State private var error: Error?
-    @State private var selectedLyrics: String?
+    @State private var selectedLyricsID: String?
 
     private var provider: LyricsProviders.Group = .init(service: [
         .qq,
@@ -36,7 +36,7 @@ struct ContentView: View {
                     if isLoading {
                         ProgressView()
                     } else {
-                        Table(searchResults, selection: $selectedLyrics) {
+                        Table(searchResults, selection: $selectedLyricsID) {
                             TableColumn("Song") { lyrics in
                                 Text(lyrics.idTags[.title] ?? "Unknown")
                             }
@@ -82,7 +82,20 @@ struct ContentView: View {
 
                 ScrollView {
                     VStack(alignment: .leading) {
-                        if let lyrics = selectedLyrics {
+                        if let lyrics = getSelectedLyrics() {
+                            if let coverURL = lyrics.metadata.artworkURL {
+                                AsyncImage(url: coverURL) { image in
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 200, height: 200)
+
+                                } placeholder: {
+                                    ProgressView()
+                                }
+                                .padding()
+                            }
+
                             Text(lyrics.description)
                                 .textSelection(.enabled)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -136,6 +149,11 @@ struct ContentView: View {
             )
             .cancel(after: 10, scheduler: DispatchQueue.main)
     }
+
+    /// Get selected lyrics from search results.
+    func getSelectedLyrics() -> Lyrics? {
+        searchResults.first { $0.id == selectedLyricsID }
+    }
 }
 
 private class SearchCanceller {
@@ -144,7 +162,6 @@ private class SearchCanceller {
 
 extension Lyrics: @retroactive Identifiable {
     public var id: String { description }
-
 }
 
 #Preview {
