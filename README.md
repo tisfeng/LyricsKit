@@ -40,6 +40,8 @@ provider.lyricsPublisher(request: searchReq).sink { lyrics in
 }
 ```
 
+![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/oaUJeB.png)
+
 ## License
 
 LyricsKit is part of LyricsX and licensed under MPL 2.0. See the [LICENSE file](LICENSE).
