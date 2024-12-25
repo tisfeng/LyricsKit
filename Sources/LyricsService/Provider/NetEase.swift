@@ -17,8 +17,8 @@ import LyricsCore
     import FoundationNetworking
 #endif
 
-private let netEaseSearchBaseURLString = "http://music.163.com/api/search/pc?"
-private let netEaseLyricsBaseURLString = "http://music.163.com/api/song/lyric?"
+private let netEaseSearchBaseURLString = "https://music.163.com/api/search/pc?"
+private let netEaseLyricsBaseURLString = "https://music.163.com/api/song/lyric?"
 
 extension LyricsProviders {
     public final class NetEase {
