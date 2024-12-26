@@ -7,12 +7,12 @@
 
 import Foundation
 
-extension Lyrics {
+public extension Lyrics {
 
     /// Estimate the length of the song, for the lyrics that has no length metadata, like QQMusic.
     /// - Returns: The estimated length of the song.
     /// - Note: The length is calculated by the last line's position and time tags.
-    var estimatedDuration: TimeInterval? {
+     var estimatedDuration: TimeInterval? {
         guard let lastLine = lines.last else {
             return nil
         }
