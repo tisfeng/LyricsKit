@@ -56,11 +56,7 @@ public struct LyricsSearchView: View {
                                 Text(lyrics.idTags[.album] ?? "Unknown")
                             }
                             TableColumn("Duration") { lyrics in
-                                if let length = lyrics.length {
-                                    Text(formatTime(length))
-                                } else {
-                                    Text("Unknown")
-                                }
+                                Text(showLength(of: lyrics))
                             }
                             TableColumn("Cover") { lyrics in
                                 LazyVStack(alignment: .leading) {
@@ -164,6 +160,19 @@ public struct LyricsSearchView: View {
     /// Get selected lyrics from searchResults
     private func getSelectedLyrics(_ lyricsDescription: String?) -> Lyrics? {
         return searchResults.first { $0.description == lyricsDescription?.description }
+    }
+
+    /// Show length of the lyrics
+    private func showLength(of lyrics: Lyrics) -> String {
+        if let length = lyrics.length {
+            return formatTime(length)
+        }
+
+        if let guessLength = lyrics.estimatedDuration {
+            return "> \(formatTime(guessLength))"
+        }
+
+        return "Unknown"
     }
 }
 
