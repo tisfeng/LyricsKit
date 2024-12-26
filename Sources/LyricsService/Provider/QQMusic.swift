@@ -164,7 +164,7 @@ extension LyricsProviders.QQMusic: _LyricsProvider {
 
                 lrc.idTags[.title] = token.name
                 lrc.idTags[.artist] = token.singers.joined(separator: ",")
-               
+
                 lrc.metadata.serviceToken = "\(token.mid)"
                 if let id = Int(token.mid) {
                     lrc.metadata.artworkURL = URL(

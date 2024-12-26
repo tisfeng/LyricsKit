@@ -48,11 +48,11 @@
       },
       {
         "package": "SwiftCF",
-        "repositoryURL": "https://github.com/ddddxxx/SwiftCF",
+        "repositoryURL": "https://github.com/Mx-Iris/SwiftCF",
         "state": {
-          "branch": null,
-          "revision": "72775c4b4dfceba8f6f43820d50f9286dc97160d",
-          "version": "0.2.1"
+          "branch": "master",
+          "revision": "46f9d814b5197d33286235036d2e3c982e885fad",
+          "version": null
         }
       }
     ]
