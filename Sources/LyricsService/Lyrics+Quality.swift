@@ -143,36 +143,56 @@ extension String {
     /// The Levenshtein distance is the minimum number of single-character edits required to change one string into another.
     ///
     /// - Parameters:
-    ///   - other: The target string to compare with
+    ///   - target: The target string to compare with
     ///   - substitutionCost: The cost of substituting a character (default: 1)
     ///   - insertionCost: The cost of inserting a character (default: 1)
     ///   - deletionCost: The cost of deleting a character (default: 1)
     /// - Returns: The minimum edit distance between the two strings
-    /// - Example:
-    ///   ```swift
-    ///   "hello".distance(to: "hallo") // returns 1 (substitute 'e' with 'a')
-    ///   "hello".distance(to: "hell")  // returns 1 (delete 'o')
-    ///   ```
-    func distance(
-        to other: String, substitutionCost: Int = 1, insertionCost: Int = 1, deletionCost: Int = 1
+    /// - Note: Uses dynamic programming with a single array for space efficiency
+    public func distance(
+        to target: String,
+        substitutionCost: Int = 1,
+        insertionCost: Int = 1,
+        deletionCost: Int = 1
     ) -> Int {
-        var d = Array(0...other.count)
-        var t = 0
-        for c1 in self {
-            t = d[0]
-            d[0] += 1
-            for (i, c2) in other.enumerated() {
-                let t2 = d[i + 1]
-                if c1 == c2 {
-                    d[i + 1] = t
+        // Initialize the distance array with increasing values (0...n)
+        // This represents the cost of transforming an empty string into target
+        var distanceArray = Array(0...target.count)
+        
+        // For each character in the source string (self)
+        for sourceChar in self {
+            // Store the previous diagonal value (used for substitution)
+            var previousDiagonal = distanceArray[0]
+            // Update first element (represents deletion from source)
+            distanceArray[0] += 1
+            
+            // For each character in the target string
+            for (targetIndex, targetChar) in target.enumerated() {
+                // Store the current diagonal value before it's overwritten
+                let currentDiagonal = distanceArray[targetIndex + 1]
+                
+                if sourceChar == targetChar {
+                    // Characters match, use the previous diagonal value
+                    distanceArray[targetIndex + 1] = previousDiagonal
                 } else {
-                    d[i + 1] = Swift.min(
-                        t + substitutionCost, d[i] + insertionCost, t2 + deletionCost)
+                    // Characters don't match, take the minimum of three operations:
+                    // 1. Substitution: previousDiagonal + substitutionCost
+                    // 2. Insertion: previous element + insertionCost
+                    // 3. Deletion: current element + deletionCost
+                    distanceArray[targetIndex + 1] = Swift.min(
+                        previousDiagonal + substitutionCost,  // Substitution
+                        distanceArray[targetIndex] + insertionCost,  // Insertion
+                        currentDiagonal + deletionCost  // Deletion
+                    )
                 }
-                t = t2
+                
+                // Update previousDiagonal for the next iteration
+                previousDiagonal = currentDiagonal
             }
         }
-        return d.last!
+        
+        // The last element contains the minimum edit distance
+        return distanceArray.last!
     }
 
     /// Checks if two strings are similar by comparing their lowercase versions.
@@ -185,7 +205,7 @@ extension String {
     ///   "Hello".isCaseInsensitiveSimilar(to: "hello")      // returns true
     ///   "Hello World".isCaseInsensitiveSimilar(to: "world") // returns true
     ///   ```
-    func isCaseInsensitiveSimilar(to string: String) -> Bool {
+    public func isCaseInsensitiveSimilar(to string: String) -> Bool {
         let s1 = lowercased()
         let s2 = string.lowercased()
         return s1.contains(s2) || s2.contains(s1)
