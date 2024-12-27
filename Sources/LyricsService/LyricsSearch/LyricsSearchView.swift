@@ -76,9 +76,9 @@ public struct LyricsSearchView: View {
 public struct LyricsResultView: View {
     let searchResults: [Lyrics]
     let onLyricsSelected: ((Lyrics) -> Void)?
-    
+
     @State private var selectedLyricsDescription: String?
-    
+
     public var body: some View {
         HSplitView {
             // Left side: Results table
@@ -87,7 +87,7 @@ public struct LyricsResultView: View {
                 selectedLyricsDescription: $selectedLyricsDescription
             )
             .frame(minWidth: 650, maxWidth: .infinity)
-            
+
             // Right side: Selected lyrics detail
             LyricsDetailView(
                 lyrics: getSelectedLyrics(selectedLyricsDescription),
@@ -101,7 +101,7 @@ public struct LyricsResultView: View {
         }
         .padding()
     }
-    
+
     private func getSelectedLyrics(_ lyricsDescription: String?) -> Lyrics? {
         searchResults.first { $0.description == lyricsDescription?.description }
     }
@@ -112,7 +112,7 @@ public struct LyricsResultView: View {
 public struct LyricsTableView: View {
     let searchResults: [Lyrics]
     @Binding var selectedLyricsDescription: String?
-    
+
     public var body: some View {
         VStack {
             Table(searchResults, selection: $selectedLyricsDescription) {
@@ -129,7 +129,7 @@ public struct LyricsTableView: View {
                     Text(lyrics.idTags[.album] ?? "Unknown")
                 }
                 TableColumn("Duration") { lyrics in
-                    Text(showLength(of: lyrics))
+                    Text(lyrics.formattedDuration)
                 }
                 TableColumn("Cover") { lyrics in
                     LyricsCoverView(coverURL: lyrics.metadata.artworkURL, showDefaultCover: true)
@@ -146,7 +146,7 @@ public struct LyricsTableView: View {
 public struct LyricsDetailView: View {
     let lyrics: Lyrics?
     let onLyricsSelected: ((Lyrics) -> Void)?
-    
+
     public var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
@@ -185,49 +185,58 @@ private struct LyricsCoverView: View {
     let coverURL: URL?
     var size: CGFloat = 40
     var showDefaultCover: Bool = false
-    
+
+    private let iconScale = 0.5
+
     var body: some View {
         LazyVStack(alignment: .leading) {
-            if let coverURL = coverURL {
-                AsyncImage(url: coverURL) { image in
-                    image
+            Group {
+                if let coverURL = coverURL {
+                    AsyncImage(url: coverURL) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .scaleEffect(iconScale)
+                    } placeholder: {
+                        ProgressView()
+                            .scaleEffect(iconScale)
+                    }
+                } else if showDefaultCover {
+                    Image(systemName: "music.note")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: size, height: size)
-                } placeholder: {
-                    ProgressView()
-                        .frame(width: size, height: size)
+                        .scaleEffect(iconScale)
                 }
-            } else if showDefaultCover {
-                Image(systemName: "music.note")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: size * 0.5, height: size * 0.5)  // Make icon slightly smaller
-                    .frame(width: size, height: size)  // Keep the container size consistent
-                    .foregroundColor(.secondary)
             }
+            .frame(width: size, height: size)  // Apply common frame to all content
         }
     }
 }
 
-/// Show length of the lyrics
-private func showLength(of lyrics: Lyrics) -> String {
-    if let length = lyrics.length, length > 0 {
-        return formatTime(length)
-    }
+extension Lyrics {
+    /// Get formatted duration string of the lyrics, e.g. "02:03"
+    /// If lyrics has length property, use it directly
+    /// If not, try to use estimated duration
+    var formattedDuration: String {
+        if let length = length, length > 0 {
+            return length.formattedTime
+        }
 
-    if let guessLength = lyrics.estimatedDuration {
-        return "> \(formatTime(guessLength))"
-    }
+        if let guessLength = estimatedDuration {
+            return "> \(guessLength.formattedTime)"
+        }
 
-    return "Unknown"
+        return "Unknown"
+    }
 }
 
-/// Format time to "mm:ss", e.g. 123 -> "02:03"
-private func formatTime(_ time: TimeInterval) -> String {
-    let minutes = Int(time) / 60
-    let seconds = Int(time) % 60
-    return String(format: "%d:%02d", minutes, seconds)
+extension TimeInterval {
+    /// Format time to "mm:ss", e.g. 123 -> "02:03"
+    public var formattedTime: String {
+        let minutes = Int(self) / 60
+        let seconds = Int(self) % 60
+        return String(format: "%d:%02d", minutes, seconds)
+    }
 }
 
 extension Lyrics: @retroactive Identifiable {
