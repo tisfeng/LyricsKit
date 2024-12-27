@@ -164,7 +164,7 @@ public struct LyricsSearchView: View {
 
     /// Show length of the lyrics
     private func showLength(of lyrics: Lyrics) -> String {
-        if let length = lyrics.length {
+        if let length = lyrics.length, length > 0 {
             return formatTime(length)
         }
 

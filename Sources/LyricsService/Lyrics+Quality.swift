@@ -21,25 +21,45 @@ private let minimalDurationQuality = 0.5
 private let qualityMixBound = 1.05
 
 extension Lyrics {
-    
+
     public var quality: Double {
         if let quality = metadata.quality {
             return quality
         }
-        var quality = 1 - pow((qualityMixBound - artistQuality) * (qualityMixBound - titleQuality) * (qualityMixBound - durationQuality), 0.3333)
+
+        // Calculate the product first
+        let product =
+            (qualityMixBound - artistQuality) * (qualityMixBound - titleQuality)
+            * (qualityMixBound - durationQuality)
+
+        // Handle negative or zero cases
+        var quality: Double
+        if product <= 0 {
+            quality = 0
+        } else {
+            // Calculate cube root using cbrt function
+            quality = 1 - cbrt(product)
+        }
+
+        // Add bonus points
         if metadata.hasTranslation {
             quality += translationBonus
         }
         if metadata.attachmentTags.contains(.timetag) {
             quality += inlineTimeTagBonus
         }
+
+        // Ensure quality is between 0 and 1
+        quality = Swift.max(0, Swift.min(1, quality))
+
         metadata.quality = quality
         return quality
     }
-    
+
     public func isMatched() -> Bool {
         guard let artist = idTags[.artist],
-            let title = idTags[.title] else {
+            let title = idTags[.title]
+        else {
             return false
         }
         switch metadata.searchRequest?.searchTerm {
@@ -53,7 +73,7 @@ extension Lyrics {
             return false
         }
     }
-    
+
     private var artistQuality: Double {
         guard let artist = idTags[.artist] else { return noArtistFactor }
         switch metadata.searchRequest?.searchTerm {
@@ -67,7 +87,7 @@ extension Lyrics {
             return noArtistFactor
         }
     }
-    
+
     private var titleQuality: Double {
         guard let title = idTags[.title] else { return noTitleFactor }
         switch metadata.searchRequest?.searchTerm {
@@ -81,11 +101,12 @@ extension Lyrics {
             return noTitleFactor
         }
     }
-    
+
     private var durationQuality: Double {
         guard let duration = length,
-            let searchDuration = metadata.searchRequest?.duration else {
-                return noDurationFactor
+            let searchDuration = metadata.searchRequest?.duration
+        else {
+            return noDurationFactor
         }
         let dt = abs(searchDuration - duration)
         guard dt < 10 else {
@@ -95,28 +116,31 @@ extension Lyrics {
     }
 }
 
-private extension String {
-    
-    func distance(to other: String, substitutionCost: Int = 1, insertionCost: Int = 1, deletionCost: Int = 1) -> Int {
+extension String {
+
+    fileprivate func distance(
+        to other: String, substitutionCost: Int = 1, insertionCost: Int = 1, deletionCost: Int = 1
+    ) -> Int {
         var d = Array(0...other.count)
         var t = 0
         for c1 in self {
             t = d[0]
             d[0] += 1
             for (i, c2) in other.enumerated() {
-                let t2 = d[i+1]
+                let t2 = d[i + 1]
                 if c1 == c2 {
-                    d[i+1] = t
+                    d[i + 1] = t
                 } else {
-                    d[i+1] = Swift.min(t + substitutionCost, d[i] + insertionCost, t2 + deletionCost)
+                    d[i + 1] = Swift.min(
+                        t + substitutionCost, d[i] + insertionCost, t2 + deletionCost)
                 }
                 t = t2
             }
         }
         return d.last!
     }
-    
-    func isCaseInsensitiveSimilar(to string: String) -> Bool {
+
+    fileprivate func isCaseInsensitiveSimilar(to string: String) -> Bool {
         let s1 = lowercased()
         let s2 = string.lowercased()
         return s1.contains(s2) || s2.contains(s1)
