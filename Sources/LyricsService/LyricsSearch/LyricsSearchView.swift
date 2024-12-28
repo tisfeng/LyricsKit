@@ -10,47 +10,37 @@ import SwiftUI
 
 @available(macOS 12.0, *)
 public struct LyricsSearchView: View {
-    @State private var searchText: String = ""
-    @State private var searchResults: [Lyrics]
-    @State private var isLoading = false
-    @State private var error: Error?
-
+    @ObservedObject private var searchState: SearchState
     private let onLyricsSelected: ((Lyrics) -> Void)?
-    private let searchService: LyricsSearchService
-    private let shouldPerformInitialSearch: Bool
 
     public init(
-        searchText: String = "",
-        searchResults: [Lyrics] = [],
-        initialSearch: Bool = true,
+        searchState: SearchState,
         onLyricsSelected: ((Lyrics) -> Void)? = nil
     ) {
-        _searchText = State(initialValue: searchText)
-        _searchResults = State(initialValue: searchResults)
+        self.searchState = searchState
         self.onLyricsSelected = onLyricsSelected
-
-        self.searchService = .init()
-        self.shouldPerformInitialSearch = initialSearch && searchResults.isEmpty
     }
 
     public var body: some View {
         VStack {
-            TextField("Search...", text: $searchText)
+            TextField("Search...", text: .constant(searchState.searchText))
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()
                 .onSubmit {
-                    performSearch()
+                    Task {
+                        await searchState.performSearch()
+                    }
                 }
 
-            if isLoading {
+            if searchState.isLoading {
                 Spacer()
                 ProgressView()
                 Spacer()
             } else {
-                LyricsResultView(searchResults: searchResults, onLyricsSelected: onLyricsSelected)
+                LyricsResultView(searchResults: searchState.lyricsList, onLyricsSelected: onLyricsSelected)
             }
 
-            if let error = error {
+            if let error = searchState.error {
                 Text("Search failed: \(error.localizedDescription)")
                     .foregroundColor(.red)
                     .padding()
@@ -58,27 +48,6 @@ public struct LyricsSearchView: View {
         }
         .padding()
         .frame(minWidth: 1000, minHeight: 600)
-        .onAppear {
-            if shouldPerformInitialSearch {
-                performSearch()
-            }
-        }
-    }
-
-    private func performSearch() {
-        isLoading = true
-        searchResults = []
-        error = nil
-
-        Task {
-            do {
-                searchResults = try await searchService.searchLyrics(keyword: searchText)
-                isLoading = false
-            } catch {
-                isLoading = false
-                self.error = error
-            }
-        }
     }
 }
 
@@ -130,6 +99,9 @@ public struct LyricsTableView: View {
                 TableColumn("Source") { lyrics in
                     Text(lyrics.metadata.service?.rawValue ?? "Unknown")
                 }
+                TableColumn("Quality") { lyrics in
+                    Text(String(format: "%.1f", lyrics.quality))
+                }
                 TableColumn("Song") { lyrics in
                     Text(lyrics.idTags[.title] ?? "Unknown")
                 }
@@ -145,11 +117,9 @@ public struct LyricsTableView: View {
                 TableColumn("Cover") { lyrics in
                     LyricsCoverView(coverURL: lyrics.metadata.artworkURL, showDefaultCover: true)
                 }
-                TableColumn("Quality") { lyrics in
-                    Text(String(format: "%.1f", lyrics.quality))
-                }
             }
             .tableStyle(.inset)
+            
             Spacer()
         }
     }
