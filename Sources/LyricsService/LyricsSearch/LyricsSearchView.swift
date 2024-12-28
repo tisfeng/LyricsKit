@@ -23,7 +23,7 @@ public struct LyricsSearchView: View {
 
     public var body: some View {
         VStack {
-            TextField("Search...", text: .constant(searchState.searchText))
+            TextField("Search...", text: $searchState.searchText)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()
                 .onSubmit {
