@@ -145,6 +145,9 @@ public struct LyricsTableView: View {
                 TableColumn("Cover") { lyrics in
                     LyricsCoverView(coverURL: lyrics.metadata.artworkURL, showDefaultCover: true)
                 }
+                TableColumn("Quality") { lyrics in
+                    Text(String(format: "%.1f", lyrics.quality))
+                }
             }
             .tableStyle(.inset)
             Spacer()
@@ -207,7 +210,6 @@ private struct LyricsCoverView: View {
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .scaleEffect(iconScale)
                     } placeholder: {
                         ProgressView()
                             .scaleEffect(iconScale)

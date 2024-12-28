@@ -33,9 +33,7 @@ extension Lyrics {
         }
 
         // Calculate the product first
-        let product =
-        (qualityMixBound - artistQuality) * (qualityMixBound - titleQuality)
-        * (qualityMixBound - durationQuality)
+        let product = (qualityMixBound - artistQuality) * (qualityMixBound - titleQuality) * (qualityMixBound - durationQuality)
 
         // Handle negative or zero cases
         var quality: Double
