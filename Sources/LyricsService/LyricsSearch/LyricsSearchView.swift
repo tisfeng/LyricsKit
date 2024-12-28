@@ -100,7 +100,7 @@ public struct LyricsTableView: View {
                     Text(lyrics.metadata.service?.rawValue ?? "Unknown")
                 }
                 TableColumn("Quality") { lyrics in
-                    Text(String(format: "%.1f", lyrics.quality))
+                    Text(String(format: "%.2f", lyrics.quality))
                 }
                 TableColumn("Song") { lyrics in
                     Text(lyrics.idTags[.title] ?? "Unknown")
@@ -119,7 +119,7 @@ public struct LyricsTableView: View {
                 }
             }
             .tableStyle(.inset)
-            
+
             Spacer()
         }
     }

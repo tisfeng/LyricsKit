@@ -43,7 +43,8 @@ public class SearchState: ObservableObject {
         error = nil
 
         do {
-            lyricsList = try await searchService.searchLyrics(keyword: searchText)
+            let lyricsList = try await searchService.searchLyrics(keyword: searchText)
+            self.lyricsList = lyricsList.sorted { $0.quality > $1.quality }
             isLoading = false
         } catch {
             isLoading = false
