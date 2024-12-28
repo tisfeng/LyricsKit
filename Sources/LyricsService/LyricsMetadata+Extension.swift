@@ -48,7 +48,7 @@ extension Lyrics.Metadata {
         set { self[.serviceToken] = newValue }
     }
     
-    var quality: Double? {
+    public var quality: Double? {
         get { return self[.quality] as? Double }
         set { self[.quality] = newValue }
     }
