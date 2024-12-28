@@ -11,17 +11,25 @@ import SwiftUI
 @available(macOS 12.0, *)
 public struct LyricsSearchView: View {
     @State private var searchText: String = ""
-    @State private var searchResults: [Lyrics] = []
+    @State private var searchResults: [Lyrics]
     @State private var isLoading = false
     @State private var error: Error?
 
     private let onLyricsSelected: ((Lyrics) -> Void)?
     private let searchService: LyricsSearchService
+    private let shouldPerformInitialSearch: Bool
 
-    public init(searchText: String = "", onLyricsSelected: ((Lyrics) -> Void)? = nil) {
-        self.onLyricsSelected = onLyricsSelected
+    public init(
+        searchText: String = "",
+        searchResults: [Lyrics] = [],
+        onLyricsSelected: ((Lyrics) -> Void)? = nil
+    ) {
         _searchText = State(initialValue: searchText)
-        searchService = .init()
+        _searchResults = State(initialValue: searchResults)
+        self.onLyricsSelected = onLyricsSelected
+
+        self.searchService = .init()
+        self.shouldPerformInitialSearch = searchResults.isEmpty
     }
 
     public var body: some View {
@@ -50,7 +58,9 @@ public struct LyricsSearchView: View {
         .padding()
         .frame(minWidth: 1000, minHeight: 600)
         .onAppear {
-            performSearch()
+            if shouldPerformInitialSearch {
+                performSearch()
+            }
         }
     }
 
