@@ -26,7 +26,7 @@ public class LyricsSearchService {
 
         let searchReq = LyricsSearchRequest(
             searchTerm: .keyword(keyword),
-            duration: 200
+            duration: 0
         )
 
         return try await withCheckedThrowingContinuation { continuation in
