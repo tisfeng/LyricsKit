@@ -22,6 +22,7 @@ public struct LyricsSearchView: View {
     public init(
         searchText: String = "",
         searchResults: [Lyrics] = [],
+        initialSearch: Bool = true,
         onLyricsSelected: ((Lyrics) -> Void)? = nil
     ) {
         _searchText = State(initialValue: searchText)
@@ -29,7 +30,7 @@ public struct LyricsSearchView: View {
         self.onLyricsSelected = onLyricsSelected
 
         self.searchService = .init()
-        self.shouldPerformInitialSearch = searchResults.isEmpty
+        self.shouldPerformInitialSearch = initialSearch && searchResults.isEmpty
     }
 
     public var body: some View {
