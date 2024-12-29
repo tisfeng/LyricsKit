@@ -11,12 +11,12 @@ import Foundation
 import LyricsCore
 
 // Weights for different factors (total = 1.0)
-private let titleWeight = 0.2  // Weight for title match
-private let artistWeight = 0.2  // Weight for artist match
-private let durationWeight = 0.2  // Weight for duration match
-private let timetagWeight = 0.2  // Weight for time tag presence
+private let titleWeight = 0.25  // Weight for title match
+private let artistWeight = 0.25  // Weight for artist match
+private let durationWeight = 0.25  // Weight for duration match
+private let timetagWeight = 0.1  // Weight for time tag presence
 private let translationWeight = 0.1  // Weight for translation presence
-private let albumWeight = 0.1  // Weight for album match
+private let albumWeight = 0.05  // Weight for album match
 
 // Quality adjustment factors (0.0 ~ 1.0)
 private let matchedArtistFactor = 1.0  // Perfect artist match
