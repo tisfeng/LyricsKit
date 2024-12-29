@@ -10,8 +10,8 @@ import Foundation
 public class SearchState: ObservableObject {
     @Published public var searchText: String = ""
     @Published public var lyricsList: [Lyrics] = []
-    public let initialSearch: Bool
-    public let searchService: LyricsSearchService
+    public var initialSearch: Bool
+    public var searchService: LyricsSearchService
 
     @Published public var isLoading = false
     @Published public var error: Error?
