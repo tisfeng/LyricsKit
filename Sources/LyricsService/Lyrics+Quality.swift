@@ -124,23 +124,22 @@ extension Lyrics {
 }
 
 extension Double {
-    /// Calculate the quality score based on the difference between two durations.
+    /// Calculate the quality score based on the difference ratio between two durations.
     /// Returns a value between 0 and 1, where:
     /// - 1.0 means perfect match
-    /// - Values approach 0 as the difference increases
-    ///
-    /// The decayTimeConstant determines how quickly the score decays:
-    /// - t = 30: difference 30s → score 0.37
-    /// - t = 50: difference 30s → score 0.55
-    /// - t = 70: difference 30s → score 0.65
-    /// - t = 100: difference 30s → score 0.74
+    /// - 0.0 means the difference equals or exceeds the target duration
+    /// 
+    /// For example, if target duration is 240s:
+    /// - difference 10s → score 0.96
+    /// - difference 30s → score 0.88
+    /// - difference 60s → score 0.75
+    /// - difference 120s → score 0.50
     ///
     /// - Parameters:
     ///   - targetDuration: The target duration to compare with
     /// - Returns: A quality score between 0 and 1
     public func durationQuality(to targetDuration: Double) -> Double {
         let difference = abs(self - targetDuration)
-        let decayTimeConstant = 50.0  // Time constant that controls decay rate
-        return exp(-difference / decayTimeConstant)
+        return Swift.max(0, 1 - (difference / targetDuration))
     }
 }
