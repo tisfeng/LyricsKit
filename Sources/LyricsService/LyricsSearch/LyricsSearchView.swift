@@ -32,13 +32,12 @@ public struct LyricsSearchView: View {
                     }
                 }
 
-            if searchService.isLoading {
-                Spacer()
-                ProgressView()
-                Spacer()
-            } else {
-                LyricsResultView(searchResults: searchService.lyricsList, onLyricsSelected: onLyricsSelected)
-            }
+            LyricsResultView(searchResults: searchService.lyricsList, onLyricsSelected: onLyricsSelected)
+                .overlay {
+                    if searchService.isLoading {
+                        ProgressView()
+                    }
+                }
         }
         .padding()
         .frame(minWidth: 1000, minHeight: 600)

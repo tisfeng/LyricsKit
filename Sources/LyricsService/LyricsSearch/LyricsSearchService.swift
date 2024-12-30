@@ -15,22 +15,19 @@ public class LyricsSearchService: ObservableObject {
 
     @Published public var searchText: String
     @Published public var lyricsList: [Lyrics] = []
-    @Published public var isLoading: Bool
+    @Published private(set) public var isLoading = false
 
     private var searchCanceller: AnyCancellable?
 
     public init(
         searchText: String = "",
         providers: [LyricsProviders.Service] = [.qq, .netease, .kugou],
-        autoSearch: Bool = true,
-        isLoading: Bool = false
+        autoSearch: Bool = true
     ) {
         self.searchText = searchText
         self.provider = .init(service: providers)
-        self.isLoading = isLoading
 
         if autoSearch && !searchText.isEmpty {
-            self.isLoading = true
             Task {
                 await searchLyrics()
             }
@@ -44,56 +41,44 @@ public class LyricsSearchService: ObservableObject {
     public func searchLyrics(with text: String? = nil) async -> [Lyrics] {
         // Cancel previous search if any
         cancelSearch()
-        
-        isLoading = true
 
         if let text {
             searchText = text
         }
 
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            isLoading = false
             lyricsList = []
             return []
         }
 
         lyricsList = []
-
-        let results = await fetchLyrics(for: searchText)
-            .sorted { $0.quality > $1.quality }
-
-        // Only update UI state if search wasn't cancelled
-        if isLoading {
-            lyricsList = results
-            isLoading = false
-        }
-
-        return results
+        return await fetchLyrics(for: searchText)
     }
 
     /// Fetch lyrics from providers
     /// - Parameter text: Search text
-    /// - Returns: Array of unsorted lyrics
+    /// - Returns: Array of sorted lyrics
     private func fetchLyrics(for text: String) async -> [Lyrics] {
-        let searchReq = LyricsSearchRequest(
-            searchTerm: .keyword(text),
-            duration: 0
-        )
+        isLoading = true
+        defer { isLoading = false }
 
         return await withCheckedContinuation { continuation in
-            var results: [Lyrics] = []
+            var allResults: [Lyrics] = []
 
-            searchCanceller = provider.lyricsPublisher(request: searchReq)
-                .timeout(.seconds(10), scheduler: DispatchQueue.lyricsQueue)
-                .receive(on: DispatchQueue.main)
-                .sink(
-                    receiveCompletion: { _ in
-                        continuation.resume(returning: results)
-                    },
-                    receiveValue: { lyrics in
-                        results.append(lyrics)
-                    }
-                )
+            searchCanceller = provider.lyricsPublisher(
+                request: .init(searchTerm: .keyword(text), duration: 0)
+            )
+            .timeout(.seconds(10), scheduler: DispatchQueue.lyricsQueue)
+            .receive(on: DispatchQueue.main)
+            .sink(
+                receiveCompletion: { _ in
+                    continuation.resume(returning: allResults)
+                },
+                receiveValue: { lyrics in
+                    allResults.append(lyrics)
+                    self.lyricsList = allResults.sorted { $0.quality > $1.quality }
+                }
+            )
         }
     }
 
