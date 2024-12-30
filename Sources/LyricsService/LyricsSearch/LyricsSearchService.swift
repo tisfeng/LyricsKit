@@ -15,20 +15,22 @@ public class LyricsSearchService: ObservableObject {
 
     @Published public var searchText: String
     @Published public var lyricsList: [Lyrics] = []
-    @Published public var isLoading = false
+    @Published public var isLoading: Bool
 
     private var searchCanceller: AnyCancellable?
 
     public init(
         searchText: String = "",
         providers: [LyricsProviders.Service] = [.qq, .netease, .kugou],
-        autoSearch: Bool = true
+        autoSearch: Bool = true,
+        isLoading: Bool = false
     ) {
         self.searchText = searchText
         self.provider = .init(service: providers)
+        self.isLoading = isLoading
 
         if autoSearch && !searchText.isEmpty {
-            isLoading = true
+            self.isLoading = true
             Task {
                 await searchLyrics()
             }
@@ -40,20 +42,31 @@ public class LyricsSearchService: ObservableObject {
     /// - Returns: Array of lyrics sorted by quality
     @discardableResult
     public func searchLyrics(with text: String? = nil) async -> [Lyrics] {
-        let searchText = text ?? searchText
+        // Cancel previous search if any
+        cancelSearch()
+        
+        isLoading = true
+
+        if let text {
+            searchText = text
+        }
+
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            isLoading = false
+            lyricsList = []
             return []
         }
 
-        isLoading = true
         lyricsList = []
 
         let results = await fetchLyrics(for: searchText)
             .sorted { $0.quality > $1.quality }
 
-        // Update UI state
-        lyricsList = results
-        isLoading = false
+        // Only update UI state if search wasn't cancelled
+        if isLoading {
+            lyricsList = results
+            isLoading = false
+        }
 
         return results
     }
@@ -72,7 +85,7 @@ public class LyricsSearchService: ObservableObject {
 
             searchCanceller = provider.lyricsPublisher(request: searchReq)
                 .timeout(.seconds(10), scheduler: DispatchQueue.lyricsQueue)
-                .receive(on: DispatchQueue.lyricsQueue)
+                .receive(on: DispatchQueue.main)
                 .sink(
                     receiveCompletion: { _ in
                         continuation.resume(returning: results)
@@ -84,12 +97,14 @@ public class LyricsSearchService: ObservableObject {
         }
     }
 
-    /// Cancel ongoing search
+    /// Cancel ongoing search and reset states
     public func cancelSearch() {
         searchCanceller?.cancel()
+        searchCanceller = nil
+        isLoading = false
     }
 }
 
 extension DispatchQueue {
-    static let lyricsQueue = DispatchQueue(label: "lyricsQueue")
+    static let lyricsQueue = DispatchQueue(label: "com.lyricskit.queue")
 }
