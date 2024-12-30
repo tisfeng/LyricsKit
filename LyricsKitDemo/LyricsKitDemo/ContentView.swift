@@ -5,16 +5,16 @@
 //  Created by tisfeng on 2024/11/22.
 //
 
-import LyricsService
 import SwiftUI
-
-let searchText = "一生不变 李克勤"
+import LyricsService
 
 struct ContentView: View {
-    @StateObject private var searchState = SearchState(searchText: searchText)
+    @StateObject private var searchService = LyricsSearchService(searchText: "一生不变 李克勤")
 
     var body: some View {
-        LyricsSearchView(searchState: searchState)
+        LyricsSearchView(searchService: searchService) { lyrics in
+            print(lyrics)
+        }
     }
 }
 

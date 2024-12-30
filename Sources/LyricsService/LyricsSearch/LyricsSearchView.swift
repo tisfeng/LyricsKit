@@ -10,37 +10,37 @@ import SwiftUI
 
 @available(macOS 12.0, *)
 public struct LyricsSearchView: View {
-    @ObservedObject private var searchState: SearchState
+    @ObservedObject private var searchService: LyricsSearchService
     private let onLyricsSelected: ((Lyrics) -> Void)?
 
     public init(
-        searchState: SearchState,
+        searchService: LyricsSearchService,
         onLyricsSelected: ((Lyrics) -> Void)? = nil
     ) {
-        self.searchState = searchState
+        self.searchService = searchService
         self.onLyricsSelected = onLyricsSelected
     }
 
     public var body: some View {
         VStack {
-            TextField("Search...", text: $searchState.searchText)
+            TextField("Search...", text: $searchService.searchText)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()
                 .onSubmit {
                     Task {
-                        await searchState.performSearch()
+                        try? await searchService.searchLyrics()
                     }
                 }
 
-            if searchState.isLoading {
+            if searchService.isLoading {
                 Spacer()
                 ProgressView()
                 Spacer()
             } else {
-                LyricsResultView(searchResults: searchState.lyricsList, onLyricsSelected: onLyricsSelected)
+                LyricsResultView(searchResults: searchService.lyricsList, onLyricsSelected: onLyricsSelected)
             }
 
-            if let error = searchState.error {
+            if let error = searchService.error {
                 Text("Search failed: \(error.localizedDescription)")
                     .foregroundColor(.red)
                     .padding()
