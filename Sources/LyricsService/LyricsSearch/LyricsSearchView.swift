@@ -1,6 +1,6 @@
 //
 //  LyricsSearchView.swift
-//  LyricsXCore
+//  LyricsKit
 //
 //  Created by tisfeng on 2024/11/23.
 //
@@ -28,7 +28,7 @@ public struct LyricsSearchView: View {
                 .padding()
                 .onSubmit {
                     Task {
-                        try? await searchService.searchLyrics()
+                        await searchService.searchLyrics()
                     }
                 }
 
@@ -38,12 +38,6 @@ public struct LyricsSearchView: View {
                 Spacer()
             } else {
                 LyricsResultView(searchResults: searchService.lyricsList, onLyricsSelected: onLyricsSelected)
-            }
-
-            if let error = searchService.error {
-                Text("Search failed: \(error.localizedDescription)")
-                    .foregroundColor(.red)
-                    .padding()
             }
         }
         .padding()
