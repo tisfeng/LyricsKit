@@ -21,7 +21,7 @@ public class LyricsSearchService: ObservableObject {
 
     public init(
         searchText: String = "",
-        providers: [LyricsProviders.Service] = [.qq, .netease, .kugou],
+        providers: [LyricsProviders.Service] = LyricsProviders.Service.allCases,
         autoSearch: Bool = true
     ) {
         self.searchText = searchText
